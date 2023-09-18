@@ -1,3 +1,4 @@
+import NDA from "./components/NDA";
 
 export default function Home() {
  
