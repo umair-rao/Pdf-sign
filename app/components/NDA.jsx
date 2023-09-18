@@ -1,9 +1,23 @@
-'use client'
+"use client";
 
 import { useState } from "react";
+import ReactSignatureCanvas from "react-signature-canvas";
 
 const NDA = () => {
-    const [name, setName] = useState('')
+  const [name, setName] = useState("");
+  const [sign, setSign] = useState();
+  const [url, setUrl] = useState();
+
+  const clearSign = () => {
+    sign.clear();
+  };
+
+  const generateSign = () => {
+    name ? (setUrl(sign.getTrimmedCanvas().toDataURL("image/png"))) 
+    :
+    (alert('Adding Text Signature is mandatory'))
+  }
+
   return (
     <div className="text-black pl-8 pr-8 pt-2 text-justify">
       <div>
@@ -21,38 +35,36 @@ const NDA = () => {
           which is hereby acknowledged, the parties hereto agree as follows:
         </p>
         <h1>Definition of Confidential Information.</h1>
-        <p>
-          (a) For purposes of this Agreement, “Confidential Information” means
-          any data or information that is proprietary to the Disclosing Party
-          and not generally known to the public, whether in tangible or
-          intangible form, in whatever medium provided, whether unmodified or
-          modified by Receiving Party or its Representatives (as defined
-          herein), whenever and however disclosed, including, but not limited
-          to: (i) any marketing strategies, plans, financial information, or
-          projections, operations, sales estimates, business plans and
-          performance results relating to the past, present or future business
-          activities of such party, its affiliates, subsidiaries and affiliated
-          companies; (ii) plans for products or services, and customer or
-          supplier lists; (iii) any scientific or technical information,
-          invention, design, process, procedure, formula, improvement,
-          technology or method; (iv) any concepts, reports, data, know-how,
-          works-in-progress, designs, development tools, specifications,
-          computer software, source code, object code, flow charts, databases,
-          inventions, information and trade secrets.
-        </p>
       </div>
       <div className="flex justify-between pt-4">
         <div>
-        <h3>Disclosing Party</h3>
-        <p>Name: {name}</p>
-        <p>Designation: Intrnee</p>
-        <p>Signature:</p>
+          <h3>Disclosing Party</h3>
+          <p>Name: {name}</p>
+          <p>Designation: Intrnee</p>
+          <p>Signature:</p>
+          <img src={url} />
         </div>
         <div>
-            <div>
-                <h4>Add your signature below:</h4>
-                <input type="text" placeholder="Type your Signature" value={name} onChange={(e) => setName(e.target.value)}/>
+          <div>
+            <h4>Add your signature below:</h4>
+            <input
+              type="text"
+              placeholder="Type your Signature"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="pt-2">
+            <div className="bg-slate-200 border-2 border-black">
+              <ReactSignatureCanvas
+                canvasProps={{ width: 400, height: 150 }}
+                ref={(data) => setSign(data)}
+              />
             </div>
+            <button onClick={() => clearSign()} className="pr-2 bg-red-300 rounded-md">Clear</button>
+            <button onClick={() => generateSign()} className="pl-2 bg-lime-200 rounded-md">Save</button>
+          </div>
         </div>
       </div>
     </div>
