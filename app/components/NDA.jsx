@@ -2,24 +2,46 @@
 
 import { useState } from "react";
 import ReactSignatureCanvas from "react-signature-canvas";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 const NDA = () => {
   const [name, setName] = useState("");
   const [sign, setSign] = useState();
   const [url, setUrl] = useState();
+  const [loader, setLoader] = useState(false);
+  const [isDivVisible, setDivVisible] = useState(true);
 
   const clearSign = () => {
     sign.clear();
   };
 
   const generateSign = () => {
-    name ? (setUrl(sign.getTrimmedCanvas().toDataURL("image/png"))) 
-    :
-    (alert('Adding Text Signature is mandatory'))
-  }
+    name
+      ? setUrl(sign.getTrimmedCanvas().toDataURL("image/png"))
+      : alert("Adding Text Signature is mandatory");
+      setDivVisible(!isDivVisible);
+  };
+
+
+  const downloadPDF = () => {
+    const capture = document.querySelector(".main-div");
+    setLoader(true);
+    html2canvas(capture).then((canvas) => {
+      const imgData = canvas.toDataURL("img/png");
+      const doc = new jsPDF({
+        orientation: "landscape",
+      });
+      const componentWidth = doc.internal.pageSize.getWidth();
+      const componentHeight = doc.internal.pageSize.getHeight();
+      doc.addImage(imgData, "PNG", 0, 0, componentWidth, componentHeight);
+      setLoader(false);
+      doc.save("receipt.pdf");
+    });
+  };
 
   return (
-    <div className="text-black pl-8 pr-8 pt-2 text-justify">
+    <div className="main-div text-black pl-8 pr-8 pt-2 text-justify">
       <div>
         <h1 className="text-center text-2xl">NON-DISCLOSURE AGREMENT</h1>
         <p className="pt-6">
@@ -45,26 +67,51 @@ const NDA = () => {
           <img src={url} />
         </div>
         <div>
-          <div>
-            <h4>Add your signature below:</h4>
-            <input
-              type="text"
-              placeholder="Type your Signature"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
-          <div className="pt-2">
-            <div className="bg-slate-200 border-2 border-black">
-              <ReactSignatureCanvas
-                canvasProps={{ width: 400, height: 150 }}
-                ref={(data) => setSign(data)}
+          {isDivVisible && (
+            <div>
+              <h4>Add your signature below:</h4>
+              <input
+                type="text"
+                placeholder="Type your Signature"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
               />
             </div>
-            <button onClick={() => clearSign()} className="pr-2 bg-red-300 rounded-md">Clear</button>
-            <button onClick={() => generateSign()} className="pl-2 bg-lime-200 rounded-md">Save</button>
-          </div>
+          )}
+      {isDivVisible && (
+        <div className="pt-2">
+<div className="bg-slate-200 border-2 border-black">
+  <ReactSignatureCanvas
+    canvasProps={{ width: 400, height: 150 }}
+    ref={(data) => setSign(data)}
+  />
+</div>
+<button
+  onClick={() => clearSign()}
+  className="pr-2 bg-red-300 rounded-md"
+>
+  Clear
+</button>
+<button
+  onClick={() => generateSign()}
+  className="pl-2 bg-lime-200 rounded-md"
+>
+  Save
+</button>
+        </div>
+      )}
+        </div>
+      </div>
+      <div className="receipt-actions-div">
+        <div className="actions-right">
+          <button
+            className="receipt-modal-download-button"
+            onClick={downloadPDF}
+            disabled={!(loader === false)}
+          >
+            {loader ? <span>Downloading</span> : <span>Download</span>}
+          </button>
         </div>
       </div>
     </div>
